@@ -6,7 +6,7 @@ import math
 import types
 
 from django.db.models.query import QuerySet
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext as _
 
 # Python 2.3 compatibility
@@ -14,6 +14,7 @@ try:
     set
 except NameError:
     from sets import Set as set
+
 
 def parse_tag_input(input):
     """
@@ -26,13 +27,14 @@ def parse_tag_input(input):
     if not input:
         return []
 
-    input = force_unicode(input)
+    input = force_text(input)
 
     words = list(set(split_strip(input)))
     words.sort()
     return words
 
-def split_strip(input, delimiter=u','):
+
+def split_strip(input, delimiter=u","):
     """
     Splits ``input`` on ``delimiter``, stripping each resulting string
     and returning a list of non-empty strings.
@@ -42,6 +44,7 @@ def split_strip(input, delimiter=u','):
 
     words = [w.strip() for w in input.split(delimiter)]
     return [w for w in words if w]
+
 
 def edit_string_for_tags(tags):
     """
@@ -58,6 +61,7 @@ def edit_string_for_tags(tags):
     """
     return ", ".join([t.name for t in tags])
 
+
 def get_queryset_and_model(queryset_or_model):
     """
     Given a ``QuerySet`` or a ``Model``, returns a two-tuple of
@@ -70,6 +74,7 @@ def get_queryset_and_model(queryset_or_model):
         return queryset_or_model, queryset_or_model.model
     except AttributeError:
         return queryset_or_model._default_manager.all(), queryset_or_model
+
 
 def get_tag_list(tags):
     """
@@ -92,6 +97,7 @@ def get_tag_list(tags):
 
     """
     from tagging.models import Tag
+
     if isinstance(tags, Tag):
         return [tags]
     elif isinstance(tags, QuerySet) and tags.model is Tag:
@@ -104,23 +110,27 @@ def get_tag_list(tags):
         contents = set()
         for item in tags:
             if isinstance(item, types.StringTypes):
-                contents.add('string')
+                contents.add("string")
             elif isinstance(item, Tag):
-                contents.add('tag')
+                contents.add("tag")
             elif isinstance(item, (types.IntType, types.LongType)):
-                contents.add('int')
+                contents.add("int")
         if len(contents) == 1:
-            if 'string' in contents:
-                return Tag.objects.filter(name__in=[force_unicode(tag) \
-                                                    for tag in tags])
-            elif 'tag' in contents:
+            if "string" in contents:
+                return Tag.objects.filter(name__in=[force_text(tag) for tag in tags])
+            elif "tag" in contents:
                 return tags
-            elif 'int' in contents:
+            elif "int" in contents:
                 return Tag.objects.filter(id__in=tags)
         else:
-            raise ValueError(_('If a list or tuple of tags is provided, they must all be tag names, Tag objects or Tag ids.'))
+            raise ValueError(
+                _(
+                    "If a list or tuple of tags is provided, they must all be tag names, Tag objects or Tag ids."
+                )
+            )
     else:
-        raise ValueError(_('The tag input given was invalid.'))
+        raise ValueError(_("The tag input given was invalid."))
+
 
 def get_tag(tag):
     """
@@ -134,6 +144,7 @@ def get_tag(tag):
     If no matching tag can be found, ``None`` will be returned.
     """
     from tagging.models import Tag
+
     if isinstance(tag, Tag):
         return tag
 
@@ -147,12 +158,15 @@ def get_tag(tag):
 
     return None
 
+
 # Font size distribution algorithms
 LOGARITHMIC, LINEAR = 1, 2
+
 
 def _calculate_thresholds(min_weight, max_weight, steps):
     delta = (max_weight - min_weight) / float(steps)
     return [min_weight + i * delta for i in range(1, steps + 1)]
+
 
 def _calculate_tag_weight(weight, max_weight, distribution):
     """
@@ -165,7 +179,8 @@ def _calculate_tag_weight(weight, max_weight, distribution):
         return weight
     elif distribution == LOGARITHMIC:
         return math.log(weight) * max_weight / math.log(max_weight)
-    raise ValueError(_('Invalid distribution algorithm specified: %s.') % distribution)
+    raise ValueError(_("Invalid distribution algorithm specified: %s.") % distribution)
+
 
 def calculate_cloud(tags, steps=4, distribution=LOGARITHMIC):
     """
