@@ -1,11 +1,6 @@
 """
 Models and managers for generic tagging.
 """
-# Python 2.3 compatibility
-try:
-    set
-except NameError:
-    from sets import Set as set
 
 from __future__ import absolute_import
 
