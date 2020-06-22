@@ -2,6 +2,8 @@
 Tagging utilities - from user tag input parsing to tag cloud
 calculation.
 """
+from __future__ import absolute_import
+
 import math
 import types
 

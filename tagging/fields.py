@@ -1,6 +1,8 @@
 """
 A custom Model Field for tagging.
 """
+from __future__ import absolute_import
+
 from django.db.models import signals
 from django.db.models.fields import CharField
 from django.utils.translation import ugettext_lazy as _
@@ -9,16 +11,18 @@ from tagging import settings
 from tagging.models import Tag
 from tagging.utils import edit_string_for_tags
 
+
 class TagField(CharField):
     """
     A "special" character field that actually works as a relationship to tags
     "under the hood". This exposes a space-separated string of tags, but does
     the splitting/reordering/etc. under the hood.
     """
+
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = kwargs.get('max_length', 255)
-        kwargs['blank'] = kwargs.get('blank', True)
-        kwargs['default'] = kwargs.get('default', '')
+        kwargs["max_length"] = kwargs.get("max_length", 255)
+        kwargs["blank"] = kwargs.get("blank", True)
+        kwargs["default"] = kwargs.get("default", "")
         super(TagField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -63,42 +67,42 @@ class TagField(CharField):
         Set an object's tags.
         """
         if instance is None:
-            raise AttributeError(_('%s can only be set on instances.') % self.name)
+            raise AttributeError(_("%s can only be set on instances.") % self.name)
         if settings.FORCE_LOWERCASE_TAGS and value is not None:
             value = value.lower()
         self._set_instance_tag_cache(instance, value)
 
-    def _save(self, **kwargs): #signal, sender, instance):
+    def _save(self, **kwargs):  # signal, sender, instance):
         """
         Save tags back to the database
         """
-        tags = self._get_instance_tag_cache(kwargs['instance'])
-        Tag.objects.update_tags(kwargs['instance'], tags)
+        tags = self._get_instance_tag_cache(kwargs["instance"])
+        Tag.objects.update_tags(kwargs["instance"], tags)
 
-    def _update(self, **kwargs): #signal, sender, instance):
+    def _update(self, **kwargs):  # signal, sender, instance):
         """
         Update tag cache from TaggedItem objects.
         """
-        instance = kwargs['instance']
+        instance = kwargs["instance"]
         self._update_instance_tag_cache(instance)
 
     def __delete__(self, instance):
         """
         Clear all of an object's tags.
         """
-        self._set_instance_tag_cache(instance, '')
+        self._set_instance_tag_cache(instance, "")
 
     def _get_instance_tag_cache(self, instance):
         """
         Helper: get an instance's tag cache.
         """
-        return getattr(instance, '_%s_cache' % self.attname, None)
+        return getattr(instance, "_%s_cache" % self.attname, None)
 
     def _set_instance_tag_cache(self, instance, tags):
         """
         Helper: set an instance's tag cache.
         """
-        setattr(instance, '_%s_cache' % self.attname, tags)
+        setattr(instance, "_%s_cache" % self.attname, tags)
 
     def _update_instance_tag_cache(self, instance):
         """
@@ -110,10 +114,11 @@ class TagField(CharField):
             self._set_instance_tag_cache(instance, tags)
 
     def get_internal_type(self):
-        return 'CharField'
+        return "CharField"
 
     def formfield(self, **kwargs):
         from tagging import forms
-        defaults = {'form_class': forms.TagField}
+
+        defaults = {"form_class": forms.TagField}
         defaults.update(kwargs)
         return super(TagField, self).formfield(**defaults)

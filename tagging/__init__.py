@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 VERSION = (0, 5, 2, "final", 1)
 
 
