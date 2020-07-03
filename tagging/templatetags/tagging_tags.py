@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 
-from django.db.models import get_model
+from django.apps import apps
 from django.template import Library
 from django.template import Node
 from django.template import TemplateSyntaxError
 from django.template import Variable
-from django.template import resolve_variable
 from django.utils.translation import ugettext as _
 
 from tagging.models import Tag
@@ -23,7 +22,7 @@ class TagsForModelNode(Node):
         self.counts = counts
 
     def render(self, context):
-        model = get_model(*self.model.split("."))
+        model = apps.get_model(*self.model.split("."))
         if model is None:
             raise TemplateSyntaxError(
                 _("tags_for_model tag was given an invalid model: %s") % self.model
@@ -41,7 +40,7 @@ class TagCloudForModelNode(Node):
         self.kwargs = kwargs
 
     def render(self, context):
-        model = get_model(*self.model.split("."))
+        model = apps.get_model(*self.model.split("."))
         if model is None:
             raise TemplateSyntaxError(
                 _("tag_cloud_for_model tag was given an invalid model: %s") % self.model
@@ -69,7 +68,7 @@ class TaggedObjectsNode(Node):
         self.model = model
 
     def render(self, context):
-        model = get_model(*self.model.split("."))
+        model = apps.get_model(*self.model.split("."))
         if model is None:
             raise TemplateSyntaxError(
                 _("tagged_objects tag was given an invalid model: %s") % self.model
