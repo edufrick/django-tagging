@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-VERSION = (0, 5, 3, "final", 1)
+VERSION = (0, 5, 4, "final", 1)
 
 
 def get_version():
