@@ -6,17 +6,14 @@ from __future__ import absolute_import
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db import connection
-from django.db import models
+from django.db import connection, models
 from django.db.models.query import QuerySet
 from django.utils.translation import ugettext_lazy as _
 
 from tagging import settings
-from tagging.utils import LOGARITHMIC
-from tagging.utils import calculate_cloud
-from tagging.utils import get_queryset_and_model
-from tagging.utils import get_tag_list
-from tagging.utils import parse_tag_input
+from tagging.utils import (LOGARITHMIC, calculate_cloud,
+                           get_queryset_and_model, get_tag_list,
+                           parse_tag_input)
 
 qn = connection.ops.quote_name
 
@@ -535,8 +532,12 @@ class TaggedItem(models.Model):
     Holds the relationship between a tag and the item being tagged.
     """
 
-    tag = models.ForeignKey(Tag, verbose_name=_("tag"), related_name="items")
-    content_type = models.ForeignKey(ContentType, verbose_name=_("content type"))
+    tag = models.ForeignKey(
+        Tag, verbose_name=_("tag"), related_name="items", on_delete=models.CASCADE
+    )
+    content_type = models.ForeignKey(
+        ContentType, verbose_name=_("content type"), on_delete=models.CASCADE
+    )
     object_id = models.PositiveIntegerField(_("object id"), db_index=True)
     object = GenericForeignKey("content_type", "object_id")
 
